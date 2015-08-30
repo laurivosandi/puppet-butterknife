@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Cleaning fontconfig cache..."
+find /var/cache/fontconfig/ -type f -delete -print

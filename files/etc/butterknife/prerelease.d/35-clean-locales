@@ -1,0 +1,2 @@
+#!/bin/bash
+rm -fv /usr/lib/locale/locale-archive

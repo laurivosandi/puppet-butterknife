@@ -1,0 +1,13 @@
+#!/bin/bash
+
+for script in /etc/butterknife/prerelease.d/*; do
+    if [ -x $script ]; then
+        echo "Executing $script"
+        $script
+    else
+        echo "Script disabled, skipping $script"
+    fi
+done
+
+rm -Rf /etc/butterknife/prerelease.d/
+rm -f $0

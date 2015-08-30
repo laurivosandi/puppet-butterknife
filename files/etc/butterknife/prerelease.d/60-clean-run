@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "Cleaning /run/"
+find /run -type f -delete -print
+find /run -type s -delete -print
+

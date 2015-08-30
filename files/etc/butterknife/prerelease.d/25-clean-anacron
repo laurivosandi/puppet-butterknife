@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Cleaning anacron..."
+rm -fv /var/spool/anacron/*

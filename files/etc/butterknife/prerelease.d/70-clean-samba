@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Cleaning Samba cache"
+find /var/lib/samba/ ! -type d -delete -print

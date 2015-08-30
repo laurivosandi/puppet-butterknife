@@ -1,0 +1,4 @@
+#!/bin/bash
+rm -fv /etc/resolvconf/resolv.conf.d/original
+rm -fv /etc/resolvconf/resolv.conf.d/tail
+

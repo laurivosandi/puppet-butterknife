@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "Removing Puppet keys, state and reports"
+find /var/lib/puppet/ssl/ -name "*.pem" ! -name ca.pem ! -name crl.pem -delete -print
+find /var/lib/puppet/state -type f -delete -print
+find /var/lib/puppet/reports -type f -delete -print

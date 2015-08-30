@@ -1,0 +1,24 @@
+{
+  "name": "puppet-butterknife",
+  "version": "0.1.0",
+  "author": "lauri",
+  "summary": "Manage Butterknife templates",
+  "license": "Apache-2.0",
+  "source": "https://github.com/laurivosandi/puppet-butterknife",
+  "project_page": "https://github.com/laurivosandi/puppet-butterknife",
+  "issues_url": "https://github.com/laurivosandi/puppet-butterknife/issues",
+  "description": "A module for managing Butterknife templates",
+  "requirements": [
+    {
+      "name": "pe",
+      "version_requirement": ">=3.2.0"
+    },
+    {
+      "name": "puppet",
+      "version_requirement": ">=2.7.17"
+    }
+  ],
+  "dependencies": [
+  
+  ]
+}

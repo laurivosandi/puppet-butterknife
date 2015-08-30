@@ -1,0 +1,2 @@
+#!/bin/bash
+rm -Rfv /var/cache/oracle-jdk*-installer

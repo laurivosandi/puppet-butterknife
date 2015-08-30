@@ -1,0 +1,110 @@
+#!/bin/bash
+
+# Make domain join persistent
+if [ ! -d /var/butterknife/persistent ]; then
+    echo "Warning: /var/butterknife/persistent does not exist, domain join persistence not enabled"
+    exit 0
+fi
+
+#
+# For domain join persistence several files have to be placed on persistent subvolume
+#
+#  - Kerberos configuration (/etc/krb5.conf) contains Kerberos realm
+#  - Kerberos keytab (/etc/krb5.keytab) is used for Kerberos magic
+#  - Samba configuration (/etc/samba/smb.conf) is used by libpam-winbind, net ads info, fileshares etc
+#  - Samba secrets (secrets.tdb) contains machine SID, domain SID and machine password for LDAP
+#  - Optionally PAM configuration (/etc/pam.d/common-*) to determine which backend is used
+#  - Optionally NSS switch configuration (/etc/nsswitch.conf)
+#  - Optionally SSSD configuration (/etc/sssd/sssd.conf) for libpam-sss
+#
+
+####################################################
+### Create /etc/krb5.keytab symlink if necessary ###
+####################################################
+
+if [ -h /etc/krb5.keytab ]; then
+    echo "Symlink /etc/krb5.keytab already exists, skipping creation..."
+else
+    echo "Symlinking /etc/krb5.keytab to /var/butterknife/persistent/krb5.keytab"
+    rm -f /etc/krb5.keytab
+    ln -s /var/butterknife/persistent/krb5.keytab /etc/krb5.keytab
+fi
+
+if [ ! -e /etc/krb5.keytab ]; then
+     # Create empty keytab, otherwise net ads join hiccups,
+     # you really-really should NOT bundle it with template
+    echo -e "\0005\0002\c" > /etc/krb5.keytab
+    chmod 0600 /etc/krb5.keytab
+fi
+
+
+######################################################################
+### Create /var/lib/samba/private/secrets.tdb symlink if necessary ###
+######################################################################
+
+if [ -h /var/lib/samba/private/secrets.tdb ]; then
+    echo "Symlink /var/lib/samba/private/secrets.tdb already exists, skipping creation..."
+else
+    echo "Symlinking /var/lib/samba/private/secrets.tdb to /var/butterknife/persistent/secrets.tdb"
+    rm -f /var/lib/samba/private/secrets.tdb
+    ln -s /var/butterknife/persistent/secrets.tdb /var/lib/samba/private/secrets.tdb
+fi
+
+
+#######################################################
+### Create /etc/samba/smb.conf symlink if necessary ###
+#######################################################
+
+if [ -h /etc/samba/smb.conf ]; then
+    echo "Symlink /etc/samba/smb.conf already exists, skipping creation..."
+else
+    echo "Symlinking /etc/samba/smb.conf to /var/butterknife/persistent/smb.conf"
+    rm -f /etc/samba/smb.conf
+    ln -s /var/butterknife/persistent/smb.conf /etc/samba/smb.conf
+fi
+
+
+##################################################
+### Create /etc/krb5.conf symlink if necessary ###
+##################################################
+
+if [ -h /etc/krb5.conf ]; then
+    echo "Symlink /etc/krb5.conf already exists, skipping creation..."
+else
+    echo "Symlinking /etc/krb5.conf to /var/butterknife/persistent/krb5.conf"
+    rm -f /etc/krb5.conf
+    ln -s /var/butterknife/persistent/krb5.conf /etc/krb5.conf
+fi
+
+
+#######################################################
+### Create /etc/sssd/sssd.conf symlink if necessary ###
+#######################################################
+
+if [ -h /etc/sssd/sssd.conf ]; then
+    echo "Symlink /etc/sssd/sssd.conf already exists, skipping creation..."
+else
+    echo "Symlinking /etc/sssd/sssd.conf to /var/butterknife/persistent/sssd.conf"
+    rm -f /etc/sssd/sssd.conf
+    ln -s /var/butterknife/persistent/sssd.conf /etc/sssd/sssd.conf
+fi
+
+
+########################################################
+### Create /etc/ldap/domain.pem symlink if necessary ###
+########################################################
+
+if [ -h /etc/ldap/domain.pem ]; then
+    echo "Symlink /etc/ldap/domain.pem already exists, skipping creation..."
+else
+    echo "Symlinking /etc/ldap/domain.pem to /var/butterknife/persistent/domain.pem"
+    rm -f /etc/ldap/domain.pem
+    ln -s /var/butterknife/persistent/domain.pem /etc/ldap/domain.pem
+fi
+
+
+###########################
+### Enable SSSD service ###
+###########################
+
+rm -f /etc/init/sssd.override

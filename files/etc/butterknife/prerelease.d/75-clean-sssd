@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Cleaning SSSD cache..."
+find /var/lib/sss/ ! -type d -delete -print

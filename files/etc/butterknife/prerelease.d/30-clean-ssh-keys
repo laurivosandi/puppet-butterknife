@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Cleaning SSH keys..."
+rm -fv /etc/ssh/ssh_host_*
