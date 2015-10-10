@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Set UTC=no in /etc/default/rcS if Windows installation is detected.
+# Otherwise Kerberos gets messed up due to clock skew.
+
+if [ -f /boot/grub/grub.cfg ]; then
+    grep -r "^menuentry 'Windows" /boot/grub/grub.cfg
+    if [ $? -eq 0 ]; then
+        echo "Detected Windows installation, switching to UTC=no in /etc/default/rcS."
+        sed -i -e 's/^UTC=.*/UTC=no/' /etc/default/rcS
+        exit 0
+    fi
+fi
+
+echo "No Windows installation detected, $(grep '^UTC=' /etc/default/rcS) remains as-is."

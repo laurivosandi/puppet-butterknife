@@ -1,3 +1,4 @@
 #!/bin/bash
-echo "Cleaning anacron..."
+/etc/init.d/cron stop
 rm -fv /var/spool/anacron/*
+rm -fv /var/spool/cron/*

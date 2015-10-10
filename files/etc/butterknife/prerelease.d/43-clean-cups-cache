@@ -1,2 +1,4 @@
 #!/bin/bash
+service cups stop
 rm -fv /var/cache/cups/*
+rm -fv /var/spool/cups/*

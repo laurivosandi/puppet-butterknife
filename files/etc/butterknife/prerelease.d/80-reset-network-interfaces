@@ -1,4 +1,6 @@
 #!/bin/bash
+
+echo "Overwriting /etc/network/interfaces"
 cat << EOF > /etc/network/interfaces
 # Reset by Butterknife
 auto lo
@@ -7,4 +9,6 @@ iface lo inet loopback
 # Use /etc/network/interfaces.d/blah or NetworkManager instead
 source-directory interfaces.d
 EOF
+
+mkdir -p /etc/network/interfaces.d
 

@@ -9,5 +9,3 @@ for script in /etc/butterknife/prerelease.d/*; do
     fi
 done
 
-rm -Rf /etc/butterknife/prerelease.d/
-rm -f $0

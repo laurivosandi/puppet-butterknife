@@ -4,17 +4,18 @@ Butterknife template helpers
 Introduction
 ------------
 
-The files under this ``files/`` folder are intended to be added to a LXC container
+The files under ``files/`` folder are intended to be added to a LXC container
 that you're using as template for Butterknife deployment.
-We've put significant effort into making the post-deploy and pre-release scripts
-usable for as many as possible scenarios, but improvements are very much welcome.
-Currently Ubuntu 14.04 i386 and amd64 based templates with legacy GRUB are supported.
 Incidently this is also a Puppet module and you can simply add following to your template
 declaration to produce Butterknife provisioning image compliant OS templates:
 
 .. code::
 
     include butterknife::template
+
+We've put significant effort into making the post-deploy and pre-release scripts
+usable for as many as possible scenarios, but improvements are very much welcome.
+Currently Ubuntu 14.04 i386 and amd64 based templates with legacy GRUB are supported.
 
 
 Template guidelines

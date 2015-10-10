@@ -1,3 +1,4 @@
 #!/bin/bash
-echo "Cleaning Samba cache"
+service smbd stop
+service winbind stop
 find /var/lib/samba/ ! -type d -delete -print

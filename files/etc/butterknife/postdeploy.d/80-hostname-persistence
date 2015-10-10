@@ -7,8 +7,6 @@ if [ -d /var/butterknife/persistent ]; then
     fi
 fi
 
-FIRST_INTERFACE=$(ls /sys/class/net/ | grep -v '^lo$' | head -n 1)
-MAC=$(cat /sys/class/net/$FIRST_INTERFACE/address | sed -e 's/://g')
-
-butterknife-change-hostname bk-$MAC
+# This will be run at every boot anyway until hostname is customized
+butterknife-generate-hostname
 

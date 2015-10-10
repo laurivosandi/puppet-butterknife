@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Removing /etc/hostname results in hostname of localhost
+rm /etc/hostname
+sed -i -e "s/127\.0\.1\.1.*$/127.0.1.1 localhost/g" /etc/hosts
+
+# Set up boot script for dynamically updating hostname based on serial number or MAC
+# This should be Clonezilla friendly
+cat > /etc/init/generate-hostname.conf << EOF
+start on filesystem
+exec butterknife-generate-hostname
+EOF
+
+cat > /etc/machine-info << EOF
+PRETTY_HOSTNAME=
+EOF
+

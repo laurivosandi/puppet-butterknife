@@ -1,3 +1,2 @@
 #!/bin/bash
-echo "Cleaning logs"
 find /var/log/ -type f -delete -print

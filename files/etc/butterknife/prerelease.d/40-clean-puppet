@@ -1,5 +1,9 @@
 #!/bin/bash
-echo "Removing Puppet keys, state and reports"
+echo "Disabling Puppet agent by creating /var/lib/puppet/state/agent_disabled.lock"
+echo '{"disabled_message":"Puppet agent disabled for Butterknife templates, use puppet apply instead"}' > /var/lib/puppet/state/agent_disabled.lock
+echo "Removing Puppet keys, state, reports and filebucket..."
 find /var/lib/puppet/ssl/ -name "*.pem" ! -name ca.pem ! -name crl.pem -delete -print
 find /var/lib/puppet/state -type f -delete -print
 find /var/lib/puppet/reports -type f -delete -print
+rm -Rfv /var/lib/puppet/clientbucket/*
+

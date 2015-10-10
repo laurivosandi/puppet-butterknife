@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $UID -ne 0 ]; then
+  echo 'Run as root with sudo!'
+  exit 255
+fi
+
 set -e
 
 if [ -z $BUTTERKNIFE_DOMAIN ] && [ -e /etc/krb5.conf ]; then
@@ -39,6 +44,7 @@ dns_lookup_realm = true
 dns_lookup_kdc = true
 forwardable = true
 proxiable = true
+rdns = false
 EOF
 
 
@@ -66,11 +72,6 @@ template shell = /bin/bash
 idmap config *:range = 1000000-16777216
 idmap config *:backend = rid
 
-# Reserve 10 000 to 20 000 for @ID.STIPIT.COM
-idmap config STIPIT:backend = ad
-idmap config STIPIT:schema_mode = rfc2307
-idmap config STIPIT:range = 9999-20000
-
 # libpam-winbind config
 winbind nss info = rfc2307
 winbind trusted domains only = no
@@ -90,7 +91,7 @@ net ads join -U $USERNAME%$PASSWORD
 
 
 #################################################
-### Setup LDAP client config and certificates ### 
+### Setup LDAP client config and certificates ###
 #################################################
 
 LDAP_CERT=/etc/ldap/domain.pem
@@ -132,18 +133,20 @@ fi
 
 cat > /etc/pam.d/common-account << EOF
 #%PAM-1.0
-account	required pam_unix.so broken_shadow
-account sufficient pam_succeed_if.so uid < 1000 quiet
+account [success=1 new_authtok_reqd=done default=ignore] pam_unix.so
+account requisite pam_deny.so
+account required pam_permit.so
+account sufficient pam_localuser.so
 account [default=bad success=ok user_unknown=ignore] pam_$METHOD.so
-account	required pam_permit.so
 EOF
 
 cat > /etc/pam.d/common-auth << EOF
 #%PAM-1.0
-auth sufficient pam_unix.so nullok try_first_pass
-auth requisite pam_succeed_if.so uid >= 1000 quiet
-auth sufficient pam_$METHOD.so use_first_pass
-auth required pam_deny.so
+auth required pam_group.so use_first_pass
+auth [success=2 default=ignore] pam_unix.so nullok_secure try_first_pass
+auth [success=1 default=ignore] pam_$METHOD.so use_first_pass
+auth requisite pam_deny.so
+auth required pam_permit.so
 auth optional pam_cap.so
 EOF
 
@@ -153,21 +156,24 @@ fi
 
 cat > /etc/pam.d/common-session << EOF
 #%PAM-1.0
-session required pam_limits.so
+session [default=1] pam_permit.so
+session requisite pam_deny.so
+session required pam_permit.so
+session optional pam_umask.so
+session required pam_mkhomedir.so umask=0077
 session required pam_unix.so
 session optional pam_$METHOD.so
-session required pam_mkhomedir.so
-session	optional pam_systemd.so
+session optional pam_systemd.so
 session optional pam_ck_connector.so nox11
-session optional pam_umask.so
 EOF
 
 cat > /etc/pam.d/common-password << EOF
 #%PAM-1.0
-password sufficient pam_unix.so sha512 obscure min=4 max=8 nullok try_first_pass
+password requisite pam_pwquality.so retry=3
+password [success=2 default=ignore] pam_unix.so obscure use_authtok try_first_pass sha512
 password sufficient pam_$METHOD.so use_authtok
-password optional pam_gnome_keyring.so 
-password required pam_deny.so
+password requisite pam_deny.so
+password required pam_permit.so
 EOF
 
 ##########################
@@ -201,10 +207,6 @@ ldap_disable_referrals = true
 EOF
 
 chmod 0600 /etc/sssd/sssd.conf
-
-if [ $DOMAIN == "id.stipit.com" ]; then
-    echo "ldap_id_mapping = false" >> /etc/sssd/sssd.conf
-fi
 
 # Set nsswitch
 sed -i -e "s/^passwd:.*/passwd: compat $METHOD/" /etc/nsswitch.conf
@@ -242,7 +244,6 @@ service smb start
 
 case $METHOD in
    sss)
-        
         if [ -d /etc/init ]; then
             echo manual > /etc/init/winbind.override
             rm -f /etc/init/sssd.override

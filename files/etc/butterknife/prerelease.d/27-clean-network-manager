@@ -1,0 +1,4 @@
+#!/bin/bash
+/etc/init.d/network-manager stop
+rm -fv /var/lib/NetworkManager/*
+rm -fv /var/lib/dhcp/*

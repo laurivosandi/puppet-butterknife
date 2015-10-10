@@ -1,5 +1,8 @@
 #!/bin/bash
-echo "Cleaning /run/"
-find /run -type f -delete -print
-find /run -type s -delete -print
+mountpoint /run > /dev/null
+if [ $? -eq 0 ]; then
+    echo "/run/ is mountpoint, not cleaning /run"
+else
+    find /run ! -type d -delete
+fi
 

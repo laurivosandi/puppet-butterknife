@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $UID -ne 0 ]; then
+  echo 'Run as root with sudo!'
+  exit 255
+fi
+
 set -e
 
 GIVEN_NAME=$(dialog --inputbox "Enter given name" 0 0 2>&1 >$(tty))
@@ -9,18 +14,20 @@ USERNAME=$(dialog --inputbox "Enter username" 0 0 $(echo $GIVEN_NAME | tr '[:upp
 clear
 
 adduser --gecos "$GIVEN_NAME $SURNAME,,," $USERNAME --disabled-password
+chmod 0700 /home/$USERNAME
 gpasswd -a $USERNAME sudo
+gpasswd -a $USERNAME lpadmin
+gpasswd -a $USERNAME adm
 
 while :
 do
     set -e
     PASSWORD=$(dialog --insecure --passwordbox "Enter password for $USERNAME" 0 0 2>&1 >$(tty))
     clear
-    
+
     set +e
     echo -en "$PASSWORD\n$PASSWORD\n" | passwd $USERNAME
     if [ $? -eq 0 ]; then
         exit 0
     fi
 done
-

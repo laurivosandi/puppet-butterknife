@@ -1,0 +1,23 @@
+#!/bin/bash
+
+grep -c "^server *=" /etc/puppet/puppet.conf >/dev/null
+
+if [ $? -ne 0 ]; then
+    echo "No Puppet server hostname specified, this OS template might be vulnerable to hijacking!"
+    exit 0
+fi
+
+if [ ! -f /var/lib/puppet/ssl/certs/ca.pem ]; then
+    echo "No Puppet CA certificate supplied at /var/lib/puppet/ssl/certs/ca.pem, this OS template might be vulnerable to hijacking!"
+    exit 0
+fi
+
+CERT_HOSTNAME=$(openssl x509 -in /var/lib/puppet/ssl/certs/ca.pem -text -noout  | grep -oP "Subject: CN=Puppet CA: \K.*")
+CONF_HOSTNAME=$(grep -oP "^server=\K.*" /etc/puppet/puppet.conf)
+
+if [ $CONF_HOSTNAME == $CERT_HOSTNAME ]; then
+    echo "Excellent! The hostname of Puppet CA certificate in /var/lib/puppet/ssl/certs/ca.pem matches the one specified in /etc/puppet/puppet.conf"
+else
+    echo "Hostname mismatch in /var/lib/puppet/ssl/certs/ca.pem, check that it matches the one specified in /etc/puppet/puppet.conf"
+    exit 255
+fi

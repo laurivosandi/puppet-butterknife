@@ -1,5 +1,4 @@
 #!/bin/bash
-echo "Cleaning temporary files..."
 find /etc -name "*.save" -delete -print
 find /etc -name "*.dpkg-dist" -delete -print
 

@@ -3,7 +3,6 @@ mountpoint /dev > /dev/null
 if [ $? -eq 0 ]; then
     echo "/dev/ is mountpoint, not cleaning /dev"
 else
-    echo "Cleaning /dev"
     find /dev ! -type d -delete
 fi
 

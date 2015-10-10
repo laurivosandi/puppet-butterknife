@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# (re)-generate hostname only if:
+#   1. /etc/hostname does not exist OR
+#   2. Set hostname is localhost OR
+#   3. Set hostname starts with bk-
+
+if [ ! -f /etc/hostname ] || [ $(cat /etc/hostname) == "localhost" ] || [[ $(cat /etc/hostname) =~ ^bk\- ]]; then
+    PRODUCT_SERIAL="$(cat /sys/devices/virtual/dmi/id/product_serial)"
+    if [[ $PRODUCT_SERIAL =~ ^[ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789]{6,12}$ ]]; then
+        # This should work for Lenovo, DELL, HP
+        butterknife-change-hostname "bk-$PRODUCT_SERIAL"
+    else
+        # Otherwise fall back to MAC address of first NIC
+        FIRST_INTERFACE=$(ls /sys/class/net/ | grep -v '^lo$' | head -n 1)
+        MAC=$(cat /sys/class/net/$FIRST_INTERFACE/address | sed -e 's/://g')
+        butterknife-change-hostname "bk-$MAC"
+    fi
+    echo "Changed hostname to $(cat /etc/hostname)"
+else
+    if [ -f /etc/init/generate-hostname.conf ]; then
+        # Remove Upstart job if hostname has been customized already
+        rm -fv /etc/init/generate-hostname.conf
+    fi
+    echo "Hostname already customized, not regenerating. Use butterknife-change-hostname to edit."
+fi
+

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Remove SSH keys for root user
+rm -fv /root/.ssh/id_*
+
+# Generate SSH keys for root user during boot
+cat > /etc/init/ssh-keygen.conf << EOF
+start on filesystem
+script
+    umask 0700
+    if [ ! -f /root/.ssh/id_ecdsa ]; then
+        mkdir -p /root/.ssh
+        ssh-keygen -t ecdsa -P '' -f /root/.ssh/id_ecdsa
+    fi
+    rm /etc/init/ssh-keygen.conf
+end script
+EOF
