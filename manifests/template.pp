@@ -7,7 +7,15 @@ class butterknife::template {
     # instead. Also Upstart job for (re)generating hostname is set up by pre-release scripts
 
     if $architecture == "i386" or $architecture == "amd64" {
-        include workstation::grub::enable
+        package { "grub-pc": ensure => installed } ->
+        package { "os-prober": ensure => installed }
+        ->
+        file_line { "grub-detect-by-uuid":
+            ensure => present,
+            path => "/etc/default/grub",
+            match => "^#?GRUB_DISABLE_LINUX_UUID=",
+            line => "GRUB_DISABLE_LINUX_UUID=false"
+        }
     }
 
     # local time is needed for dual-boot machines,
