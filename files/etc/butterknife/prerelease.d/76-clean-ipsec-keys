@@ -1,0 +1,4 @@
+#!/bin/bash
+find /etc/ipsec.d/reqs -type f -delete -print
+find /etc/ipsec.d/certs -type f -delete -print
+find /etc/ipsec.d/private -type f -delete -print
