@@ -132,7 +132,7 @@ EOF
 cat > /etc/samba/smb.conf << EOF
 [global]
 security = ads
-netbios name = $HOSTNAME
+netbios name = $NMBNAME
 workgroup = $WORKGROUP
 realm = $REALM
 kerberos method = system keytab
