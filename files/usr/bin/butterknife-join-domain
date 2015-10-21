@@ -103,7 +103,7 @@ read -p "Press Enter to continue or Ctrl-C to abort..."
 ####################
 
 echo $HOSTNAME > /etc/hostname
-sed -i -e "s/^PRETTY_HOSTNAME=.*/PRETTY_HOSTNAME=$NEW/" /etc/machine-info
+sed -i -e "s/^PRETTY_HOSTNAME=.*/PRETTY_HOSTNAME=$HOSTNAME/" /etc/machine-info
 
 if [ -d /var/butterknife/persistent ]; then
     echo $HOSTNAME > /var/butterknife/persistent/hostname
