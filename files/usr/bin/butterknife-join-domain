@@ -5,33 +5,111 @@ if [ $UID -ne 0 ]; then
   exit 255
 fi
 
+if [ ! -e /usr/bin/dig ]; then
+    echo "No command 'dig' available, please: apt-get install dnsutils"
+    exit 2
+fi
+
+if [ ! -e /usr/bin/net ]; then
+    echo "No command 'net' available, please: apt-get install samba-common"
+    exit 3
+fi
+
 set -e
 
-if [ -z $BUTTERKNIFE_DOMAIN ] && [ -e /etc/krb5.conf ]; then
-    BUTTERKNIFE_DOMAIN=$(cat /etc/krb5.conf  | grep "^default_realm.*=" | tr '[:upper:]' '[:lower:]' | cut -d '=' -f 2 | xargs)
+########################
+### Prompt hostname  ###
+########################
+
+if [ -z $BUTTERKNIFE_HOSTNAME ]; then
+    if [ -e /var/butterknife/persistent/hostname ]; then
+        BUTTERKNIFE_HOSTNAME=$(cat /var/butterknife/persistent/hostname)
+    else
+        BUTTERKNIFE_HOSTNAME=$(cat /etc/hostname)
+    fi
+    BUTTERKNIFE_HOSTNAME=$(dialog --max-input 15 --inputbox "Enter hostname" 0 0 $BUTTERKNIFE_HOSTNAME 2>&1 >$(tty))
 fi
 
-DOMAIN=$(dialog --inputbox "Enter domain" 0 0 $BUTTERKNIFE_DOMAIN 2>&1 >$(tty))
-DOMAIN=$(echo $DOMAIN | tr '[:upper:]' '[:lower:]')
-REALM=$(echo $DOMAIN | tr '[:lower:]' '[:upper:]')
-WORKGROUP=$(echo $REALM | rev | cut -d . -f 2  | rev)
+
+# Generate NetBIOS name and hostname
+NMBNAME=$(echo $BUTTERKNIFE_HOSTNAME | tr '[:lower:]' '[:upper:]')
+HOSTNAME=$(echo $BUTTERKNIFE_HOSTNAME | tr '[:upper:]' '[:lower:]')
+
+
+######################
+### Prompt domain  ###
+######################
+
+if [ -z $BUTTERKNIFE_DOMAIN ]; then
+    if [ -e /etc/krb5.conf ]; then
+        BUTTERKNIFE_DOMAIN=$(cat /etc/krb5.conf  | grep "^default_realm.*=" | tr '[:upper:]' '[:lower:]' | cut -d '=' -f 2 | xargs)
+    fi
+    BUTTERKNIFE_DOMAIN=$(dialog --inputbox "Enter domain" 0 0 $BUTTERKNIFE_DOMAIN 2>&1 >$(tty))
+fi
+
+DOMAIN=$(echo $BUTTERKNIFE_DOMAIN | tr '[:upper:]' '[:lower:]')
+REALM=$(echo $BUTTERKNIFE_DOMAIN | tr '[:lower:]' '[:upper:]')
+FQDN=$HOSTNAME.$DOMAIN
+
+
+#########################
+### Prompt workgroup  ###
+#########################
+
+if [ -z $BUTTERKNIFE_WORKGROUP ]; then
+    if [ -e /etc/samba/smb.conf ]; then
+        BUTTERKNIFE_WORKGROUP=$(cat /etc/samba/smb.conf | grep ^workgroup.*= | cut -d '=' -f 2 | xargs)
+    else
+        BUTTERKNIFE_WORKGROUP=$(echo $REALM | rev | cut -d . -f 2 | rev)
+    fi
+    BUTTERKNIFE_WORKGROUP=$(dialog --inputbox "Enter workgroup" 0 0 $BUTTERKNIFE_WORKGROUP 2>&1 >$(tty))
+fi
+
+WORKGROUP=$(echo $BUTTERKNIFE_WORKGROUP | tr '[:lower:]' '[:upper:]')
+
+################################################
+### Prompt joiner account username/password  ###
+################################################
+
 USERNAME=$(dialog --inputbox "Enter username" 0 0 Administrator 2>&1 >$(tty))
 PASSWORD=$(dialog --insecure --passwordbox "Enter password for $USERNAME@$REALM" 0 0 2>&1 >$(tty))
-HOSTNAME=$(cat /etc/hostname)
-
-if [ -x /usr/sbin/sssd ]; then
-    METHOD=sss
-elif [ -x /usr/sbin/winbindd ]; then
-    METHOD=winbind
-else
-    METHOD=skip
-fi
 
 clear
 
 set +e
 
-echo "Joining machine $HOSTNAME to domain $DOMAIN..."
+
+clear
+echo "About to join $HOSTNAME to domain $DOMAIN, fully qualified name is $FQDN"
+echo "Using Kerberos realm: $REALM"
+echo "Using NetBIOS name $NMBNAME and workgroup $WORKGROUP"
+
+if [ -x /usr/sbin/sssd ]; then
+    METHOD=sss
+    echo "Using SSSD to configure domain-enabled login"
+elif [ -x /usr/sbin/winbindd ]; then
+    METHOD=winbind
+    echo "Using Winbind to configure domain-enabled login"
+else
+    METHOD=skip
+    echo "No SSSD or Winbind PAM modules detected! Please: apt-get install libpam-sss libnss-sss sssd"
+fi
+
+read -p "Press Enter to continue or Ctrl-C to abort..."
+
+
+####################
+### Set hostname ###
+####################
+
+echo $HOSTNAME > /etc/hostname
+sed -i -e "s/^PRETTY_HOSTNAME=.*/PRETTY_HOSTNAME=$NEW/" /etc/machine-info
+
+if [ -d /var/butterknife/persistent ]; then
+    echo $HOSTNAME > /var/butterknife/persistent/hostname
+fi
+
+sed -i -e "s/127\.0\.1\.1.*$/127.0.1.1 $FQDN $HOSTNAME/g" /etc/hosts
 
 ##########################
 ### Set Kerberos realm ###
