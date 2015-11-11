@@ -46,5 +46,27 @@ class butterknife::common {
         group => root,
         source => "puppet:///modules/butterknife/usr/bin/butterknife-join-domain"
     }
+
+    file { "/var/log/lastlog":
+        ensure => present,
+        mode => 664,
+        owner => root,
+        group => utmp
+    }
+
+    file { "/var/log/wtmp":
+        ensure => present,
+        mode => 664,
+        owner => root,
+        group => utmp
+    }
+
+    file { "/var/log/btmp":
+        ensure => present,
+        mode => 660,
+        owner => root,
+        group => utmp
+    }
+
 }
 

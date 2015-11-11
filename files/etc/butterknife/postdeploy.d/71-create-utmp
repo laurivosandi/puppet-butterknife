@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# LightDM fails to cache recent users if these files are missing
+
+touch /var/log/lastlog /var/log/wtmp /var/log/btmp
+chown root:utmp /var/log/lastlog /var/log/wtmp /var/log/btmp
+chmod 664 /var/log/lastlog /var/log/wtmp
+chmod 660 /var/log/btmp
+
