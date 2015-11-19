@@ -1,4 +1,10 @@
 #!/bin/bash
 service smbd stop
 service winbind stop
+
+# Clean up sockets and databases
 find /var/lib/samba/ ! -type d -delete -print
+find /var/cache/samba/ ! -type d -delete -print
+
+# Make sure directories exist otherwise domain join fails
+mkdir -p /var/lib/samba/private /var/cache/samba
