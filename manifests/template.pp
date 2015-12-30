@@ -68,15 +68,4 @@ class butterknife::template {
         group => root,
         source => "puppet:///modules/butterknife/usr/bin/butterknife-prerelease"
     }
-
-    if $lsbdistcodename == "trusty" {
-        # Set up Upstart job for creating swapfile in /var/cache/swapfile/
-        file { "/etc/init/swapfile.conf":
-            ensure => file,
-            mode => 644,
-            owner => root,
-            group => root,
-            source => "puppet:///modules/butterknife/etc/init/swapfile.conf"
-        }
-    }
 }
