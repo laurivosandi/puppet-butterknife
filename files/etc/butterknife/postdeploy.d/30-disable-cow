@@ -1,0 +1,5 @@
+#!/bin/bash
+for d in /var/lib/postgresql /var/lib/mysql /var/lib/collectd /var/lib/libvirt/images; do
+    mkdir -p $d
+    chattr +C -RVf $d
+done
