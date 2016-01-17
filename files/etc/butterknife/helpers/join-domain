@@ -15,6 +15,11 @@ if [ ! -e /usr/bin/net ]; then
     exit 3
 fi
 
+if [ ! -e /usr/bin/dialog ]; then
+    echo "No command 'dialog' available, please: apt-get install dialog"
+    exit 4
+fi
+
 set -e
 
 ########################
@@ -22,8 +27,8 @@ set -e
 ########################
 
 if [ -z $BUTTERKNIFE_HOSTNAME ]; then
-    if [ -e /var/butterknife/persistent/hostname ]; then
-        BUTTERKNIFE_HOSTNAME=$(cat /var/butterknife/persistent/hostname)
+    if [ -e /var/lib/butterknife/persistent/hostname ]; then
+        BUTTERKNIFE_HOSTNAME=$(cat /var/lib/butterknife/persistent/hostname)
     else
         BUTTERKNIFE_HOSTNAME=$(cat /etc/hostname)
     fi
@@ -78,8 +83,6 @@ clear
 
 set +e
 
-
-clear
 echo "About to join $HOSTNAME to domain $DOMAIN, fully qualified name is $FQDN"
 echo "Using Kerberos realm: $REALM"
 echo "Using NetBIOS name $NMBNAME and workgroup $WORKGROUP"
@@ -95,9 +98,6 @@ else
     echo "No SSSD or Winbind PAM modules detected! Please: apt-get install libpam-sss libnss-sss sssd"
 fi
 
-read -p "Press Enter to continue or Ctrl-C to abort..."
-
-
 ####################
 ### Set hostname ###
 ####################
@@ -105,8 +105,8 @@ read -p "Press Enter to continue or Ctrl-C to abort..."
 echo $HOSTNAME > /etc/hostname
 sed -i -e "s/^PRETTY_HOSTNAME=.*/PRETTY_HOSTNAME=$HOSTNAME/" /etc/machine-info
 
-if [ -d /var/butterknife/persistent ]; then
-    echo $HOSTNAME > /var/butterknife/persistent/hostname
+if [ -d /var/lib/butterknife/persistent ]; then
+    echo $HOSTNAME > /var/lib/butterknife/persistent/hostname
 fi
 
 sed -i -e "s/127\.0\.1\.1.*$/127.0.1.1 $FQDN $HOSTNAME/g" /etc/hosts
@@ -137,10 +137,6 @@ workgroup = $WORKGROUP
 realm = $REALM
 kerberos method = system keytab
 
-# Kill NetBIOS
-disable netbios = yes
-smb ports = 445
-
 # UNIX attribute templates for rid backend
 template homedir = /home/%U
 template shell = /bin/bash
@@ -153,19 +149,22 @@ idmap config *:backend = rid
 winbind nss info = rfc2307
 winbind trusted domains only = no
 winbind use default domain = yes
-winbind enum users  = no
-winbind enum groups = no
 winbind refresh tickets = yes
 client ldap sasl wrapping = seal
+
+# Map Windows ACL-s to chown/chmod/setfacl/attr
+vfs objects = acl_xattr
+
 EOF
+
 
 
 #####################################################
 ### This populates keytab and creates secrets.tdb ###
 #####################################################
 
-net ads join -U $USERNAME%$PASSWORD
-
+(echo;echo;echo;net ads join -U $USERNAME%$PASSWORD) | dialog --programbox "Joining to domain $DOMAIN" 15 76
+clear
 
 #################################################
 ### Setup LDAP client config and certificates ###
@@ -187,18 +186,6 @@ BASE $LDAP_BASE
 URI ldap://$LDAP_HOSTNAME:$LDAP_PORT ldaps://$LDAP
 TLS_CACERT $LDAP_CERT
 EOF
-
-
-##############################################################################
-### Symlink /etc/sudoers-available.d/$DOMAIN to /etc/sudoers/domain-admins ###
-##############################################################################
-
-rm -f /etc/sudoers.d/domain-admins
-
-if [ -e /etc/sudoers-available.d/$DOMAIN ]; then
-    ln -s /etc/sudoers-available.d/$DOMAIN /etc/sudoers.d/domain-admins
-fi
-
 
 if [ $METHOD == "skip" ]; then
     exit 0

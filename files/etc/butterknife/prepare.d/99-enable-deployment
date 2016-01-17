@@ -1,0 +1,2 @@
+#!/bin/sh
+chmod -f +x /usr/bin/butterknife-deploy /usr/local/bin/butterknife-deploy

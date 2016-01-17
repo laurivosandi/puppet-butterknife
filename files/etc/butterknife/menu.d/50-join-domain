@@ -1,0 +1,5 @@
+#!/bin/sh
+[ -f /usr/bin/net ] || exit 0
+[ -f /usr/bin/dig ] || exit 0
+[ -f /usr/bin/dialog ] || exit 0
+echo "join-domain \"Join domain\""

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Make domain join persistent
-if [ ! -d /var/butterknife/persistent ]; then
-    echo "Warning: /var/butterknife/persistent does not exist, domain join persistence not enabled"
+if [ ! -d /var/lib/butterknife/persistent ]; then
+    echo "Warning: /var/lib/butterknife/persistent does not exist, domain join persistence not enabled"
     exit 0
 fi
 
@@ -25,9 +25,9 @@ fi
 if [ -h /etc/krb5.keytab ]; then
     echo "Symlink /etc/krb5.keytab already exists, skipping creation..."
 else
-    echo "Symlinking /etc/krb5.keytab to /var/butterknife/persistent/krb5.keytab"
+    echo "Symlinking /etc/krb5.keytab to /var/lib/butterknife/persistent/krb5.keytab"
     rm -f /etc/krb5.keytab
-    ln -s /var/butterknife/persistent/krb5.keytab /etc/krb5.keytab
+    ln -s /var/lib/butterknife/persistent/krb5.keytab /etc/krb5.keytab
 fi
 
 if [ ! -e /etc/krb5.keytab ]; then
@@ -45,9 +45,9 @@ fi
 if [ -h /var/lib/samba/private/secrets.tdb ]; then
     echo "Symlink /var/lib/samba/private/secrets.tdb already exists, skipping creation..."
 else
-    echo "Symlinking /var/lib/samba/private/secrets.tdb to /var/butterknife/persistent/secrets.tdb"
+    echo "Symlinking /var/lib/samba/private/secrets.tdb to /var/lib/butterknife/persistent/secrets.tdb"
     rm -f /var/lib/samba/private/secrets.tdb
-    ln -s /var/butterknife/persistent/secrets.tdb /var/lib/samba/private/secrets.tdb
+    ln -s /var/lib/butterknife/persistent/secrets.tdb /var/lib/samba/private/secrets.tdb
 fi
 
 
@@ -58,9 +58,9 @@ fi
 if [ -h /etc/samba/smb.conf ]; then
     echo "Symlink /etc/samba/smb.conf already exists, skipping creation..."
 else
-    echo "Symlinking /etc/samba/smb.conf to /var/butterknife/persistent/smb.conf"
+    echo "Symlinking /etc/samba/smb.conf to /var/lib/butterknife/persistent/smb.conf"
     rm -f /etc/samba/smb.conf
-    ln -s /var/butterknife/persistent/smb.conf /etc/samba/smb.conf
+    ln -s /var/lib/butterknife/persistent/smb.conf /etc/samba/smb.conf
 fi
 
 
@@ -71,9 +71,9 @@ fi
 if [ -h /etc/krb5.conf ]; then
     echo "Symlink /etc/krb5.conf already exists, skipping creation..."
 else
-    echo "Symlinking /etc/krb5.conf to /var/butterknife/persistent/krb5.conf"
+    echo "Symlinking /etc/krb5.conf to /var/lib/butterknife/persistent/krb5.conf"
     rm -f /etc/krb5.conf
-    ln -s /var/butterknife/persistent/krb5.conf /etc/krb5.conf
+    ln -s /var/lib/butterknife/persistent/krb5.conf /etc/krb5.conf
 fi
 
 
@@ -84,9 +84,9 @@ fi
 if [ -h /etc/sssd/sssd.conf ]; then
     echo "Symlink /etc/sssd/sssd.conf already exists, skipping creation..."
 else
-    echo "Symlinking /etc/sssd/sssd.conf to /var/butterknife/persistent/sssd.conf"
+    echo "Symlinking /etc/sssd/sssd.conf to /var/lib/butterknife/persistent/sssd.conf"
     rm -f /etc/sssd/sssd.conf
-    ln -s /var/butterknife/persistent/sssd.conf /etc/sssd/sssd.conf
+    ln -s /var/lib/butterknife/persistent/sssd.conf /etc/sssd/sssd.conf
 fi
 
 
@@ -97,9 +97,9 @@ fi
 if [ -h /etc/ldap/domain.pem ]; then
     echo "Symlink /etc/ldap/domain.pem already exists, skipping creation..."
 else
-    echo "Symlinking /etc/ldap/domain.pem to /var/butterknife/persistent/domain.pem"
+    echo "Symlinking /etc/ldap/domain.pem to /var/lib/butterknife/persistent/domain.pem"
     rm -f /etc/ldap/domain.pem
-    ln -s /var/butterknife/persistent/domain.pem /etc/ldap/domain.pem
+    ln -s /var/lib/butterknife/persistent/domain.pem /etc/ldap/domain.pem
 fi
 
 

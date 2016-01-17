@@ -1,0 +1,2 @@
+#!/bin/sh
+echo "change-hostname \"Change hostname $(cat /etc/hostname)\""

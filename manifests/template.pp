@@ -18,6 +18,12 @@ class butterknife::template {
         }
     }
 
+    # Make symlink relative on jessie
+    file { "/etc/resolv.conf":
+        ensure => link,
+        target => '../run/resolvconf/resolv.conf'
+    }
+
     # local time is needed for dual-boot machines,
     # it's set in post-deploy scripts now.
     # template shall remain in UTC
@@ -25,47 +31,5 @@ class butterknife::template {
         path => "/etc/default/rcS",
         match => "^UTC=",
         line => "UTC=yes"
-    }
-
-    file { "/etc/butterknife/":
-        ensure => directory,
-        owner => root,
-        group => root
-    }
-    ->
-    file { "/etc/butterknife/postdeploy.d/":
-        ensure => directory,
-        recurse => true,
-        purge => true,
-        force => true,
-        owner => root,
-        group => root,
-        source => "puppet:///modules/butterknife/etc/butterknife/postdeploy.d/"
-    }
-    ->
-    file { "/etc/butterknife/prerelease.d/":
-        ensure => directory,
-        recurse => true,
-        purge => true,
-        force => true,
-        owner => root,
-        group => root,
-        source => "puppet:///modules/butterknife/etc/butterknife/prerelease.d/"
-    }
-    ->
-    file { "/usr/local/bin/butterknife-postdeploy":
-        ensure => file,
-        mode => 755,
-        owner => root,
-        group => root,
-        source => "puppet:///modules/butterknife/usr/bin/butterknife-postdeploy"
-    }
-    ->
-    file { "/usr/local/bin/butterknife-prerelease":
-        ensure => file,
-        mode => 755,
-        owner => root,
-        group => root,
-        source => "puppet:///modules/butterknife/usr/bin/butterknife-prerelease"
     }
 }

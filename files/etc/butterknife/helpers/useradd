@@ -15,9 +15,6 @@ clear
 
 adduser --gecos "$GIVEN_NAME $SURNAME,,," $USERNAME --disabled-password
 chmod 0700 /home/$USERNAME
-gpasswd -a $USERNAME sudo
-gpasswd -a $USERNAME lpadmin
-gpasswd -a $USERNAME adm
 
 while :
 do
@@ -28,6 +25,11 @@ do
     set +e
     echo -en "$PASSWORD\n$PASSWORD\n" | passwd $USERNAME
     if [ $? -eq 0 ]; then
-        exit 0
+        break
     fi
 done
+
+gpasswd -a $USERNAME adm
+[ -x /usr/bin/sudo      ] && gpasswd -a $USERNAME sudo
+[ -x /usr/sbin/cupsd    ] && gpasswd -a $USERNAME lpadmin
+[ -x /usr/sbin/libvirtd ] && gpasswd -a $USERNAME libvirtd

@@ -1,0 +1,2 @@
+#!/bin/sh
+echo "shell \"Drop to instance shell\""

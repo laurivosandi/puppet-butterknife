@@ -1,0 +1,6 @@
+#!/bin/sh
+[ ! -x /usr/sbin/grub-install ] && exit 0
+
+UUID=$(cat /etc/fstab | grep "^UUID=.................................... / " | cut -d "=" -f 2 | cut -d " " -f 1)
+
+echo "grub-install \"Install bootloader on $(/etc/butterknife/helpers/list-disks | xargs)\""

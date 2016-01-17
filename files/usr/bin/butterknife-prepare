@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for script in /etc/butterknife/prerelease.d/*; do
+for script in /etc/butterknife/prepare.d/*; do
     if [ -x $script ]; then
         echo "Executing $script"
         $script

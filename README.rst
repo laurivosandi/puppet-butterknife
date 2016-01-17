@@ -18,6 +18,13 @@ usable for as many as possible scenarios, but improvements are very much welcome
 Currently Ubuntu 14.04 i386 and amd64 based templates with legacy GRUB are supported.
 
 
+TODO
+----
+
+* Regenerate SSH server keys if SSH server was installed and make the keys persistent
+* Allow root login via SSH and warn via dynamic MOTD if root login via SSH is allowed using password
+
+
 Template guidelines
 -------------------
 

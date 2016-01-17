@@ -1,55 +1,19 @@
 #!/bin/bash
+if [ $UID -ne 0 ]; then
+  echo 'Run as root with sudo!'
+  exit 255
+fi
 
 set -e
 
 while :
 do
-    export BUTTERKNIFE_HOSTNAME=$(cat /etc/hostname)
-    if [ -e /etc/krb5.conf ]; then
-        export BUTTERKNIFE_DOMAIN=$(cat /etc/krb5.conf  | grep "^default_realm.*=" | tr '[:upper:]' '[:lower:]' | cut -d '=' -f 2 | xargs)
-    else
-        unset BUTTERKNIFE_DOMAIN
-    fi
-    
-    # TODO: Make more dynamic, don't offer options for non-installed software
-    action=$(dialog --menu "Advanced options, remember your warranty is VOID now" 0 0 0 \
-        shell "Drop to instance shell" \
-        purge-puppet "Purge Puppet keys, remember to clean on server aswell" \
-        hostname "Change hostname $BUTTERKNIFE_HOSTNAME" \
-        domain "Change domain $BUTTERKNIFE_DOMAIN" \
-        useradd "Create local user" \
-        grub-update "Update GRUB entries" \
-        mbr "Install GRUB to $BUTTERKNIFE_DISK master boot record" \
-        vbr "Install GRUB to $BUTTERKNIFE_PARTITION volume boot record" \
-        2>&1 >$(tty))
-
-    clear
-    
-    case $action in
-        shell)
-            bash
-        ;;
-        purge-puppet)
-            rm -Rfv /var/lib/puppet/ssl/*
-        ;;
-        hostname)
-            butterknife-change-hostname
-        ;;      
-        join)
-            butterknife-join-domain
-        ;;
-        useradd)
-            butterknife-create-local-user
-        ;;
-        grub-update)
-            update-grub2
-        ;;
-        mbr)
-            grub-install $BUTTERKNIFE_DISK
-        ;;
-        vbr)
-            grub-install $BUTTERKNIFE_PARTITION
-        ;;
-    esac            
+    for filename in $(ls /etc/butterknife/menu.d | grep -v "\."); do
+        [ -x /etc/butterknife/menu.d/$filename ] && /etc/butterknife/menu.d/$filename
+    done > /tmp/actions
+    set +e
+    dialog --menu "What next?" 0 0 0 --file /tmp/actions 2>/tmp/action
+    [ $? -eq 1 ] && exit 0
+    set -e
+    sh /etc/butterknife/helpers/$(cat /tmp/action)
 done
-

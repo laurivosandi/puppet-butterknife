@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Derive UUID of root
+UUID=$(cat /etc/fstab | grep "^UUID=.................................... / " | cut -d "=" -f 2 | cut -d " " -f 1)
+
+# Derive list of disks on which it's installed and run grub-install on each one of them
+blkid -t UUID=$UUID |  cut -d ":" -f 1 | cut -c -8 | sort | uniq
+

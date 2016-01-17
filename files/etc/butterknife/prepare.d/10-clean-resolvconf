@@ -1,0 +1,8 @@
+#!/bin/bash
+[ ! -d /etc/resolvconf ] && exit 0
+rm -fv /etc/resolvconf/resolv.conf.d/original
+rm -fv /etc/resolvconf/resolv.conf.d/tail
+mkdir -p /run/resolvconf/
+rm /etc/resolv.conf
+ln -s ../run/resolvconf/resolv.conf /etc/resolv.conf 
+

@@ -1,5 +1,5 @@
 #!/bin/bash
-POOL_MOUNTPOINT=/var/butterknife/pool
+POOL_MOUNTPOINT=/var/lib/butterknife/pool
 echo "Mounting $POOL_MOUNTPOINT"
 echo "UUID=$BUTTERKNIFE_POOL_UUID $POOL_MOUNTPOINT btrfs defaults,subvol=/ 0 7" >> /etc/fstab
 mkdir -p $POOL_MOUNTPOINT

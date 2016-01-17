@@ -1,0 +1,7 @@
+#!/bin/sh
+find /usr/share/zoneinfo/ -maxdepth 1 -type d  -printf "%f \"\"\n" | LANG= grep '^[A-Z]' | sort > /tmp/regions
+dialog --menu "Select region" 0 0 0 --file /tmp/regions 2>/tmp/selected-region
+find /usr/share/zoneinfo/$(cat /tmp/selected-region)/ -mindepth 1 -maxdepth 1 -printf "%f \"\"\n" | sort > /tmp/cities
+dialog --menu "Select city" 0 0 0 --file /tmp/cities 2>/tmp/selected-city
+echo "$(cat /tmp/selected-region)/$(cat /tmp/selected-city)" >/etc/timezone
+dpkg-reconfigure -f noninteractive tzdata

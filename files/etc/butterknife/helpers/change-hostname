@@ -3,8 +3,8 @@
 set -e
 
 if [ -z $1 ]; then
-    if [ -e /var/butterknife/persistent/hostname ]; then
-        CURRENT=$(cat /var/butterknife/persistent/hostname)
+    if [ -e /var/lib/butterknife/persistent/hostname ]; then
+        CURRENT=$(cat /var/lib/butterknife/persistent/hostname)
     else
         CURRENT=$(cat /etc/hostname)
     fi
@@ -13,8 +13,8 @@ else
     NEW=$1
 fi
 
-if [ -d /var/butterknife/persistent ]; then
-    echo $NEW > /var/butterknife/persistent/hostname
+if [ -d /var/lib/butterknife/persistent ]; then
+    echo $NEW > /var/lib/butterknife/persistent/hostname
 fi
 
 sed -i -e "s/^PRETTY_HOSTNAME=.*/PRETTY_HOSTNAME=$NEW/" /etc/machine-info

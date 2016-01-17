@@ -1,0 +1,4 @@
+#!/bin/sh
+clear
+[ -f /etc/motd ] && cat /etc/motd
+su - root

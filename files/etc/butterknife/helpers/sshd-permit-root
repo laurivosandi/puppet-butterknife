@@ -1,0 +1,6 @@
+#!/bin/sh
+dialog --menu "Permit root login" 0 0 0 \
+    yes "Allow login with password or public key" \
+    without-password "Allow login with public key" \
+    no "Never allow root login" 2>/tmp/permit-root-login
+sed -i -e "s/PermitRootLogin.*/PermitRootLogin $(cat /tmp/permit-root-login)/" /etc/ssh/sshd_config

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Derive list of disks on which it's installed and run grub-install on each one of them
+(for DISK in $(/etc/butterknife/helpers/list-disks); do
+    echo "Running: grub-install $DISK"
+    grub-install $DISK 2>&1
+    echo
+done
+echo "Running: update-grub2"
+update-grub2 2>&1) | dialog --programbox "Install GRUB on $(/etc/butterknife/helpers/list-disks)" 20 76

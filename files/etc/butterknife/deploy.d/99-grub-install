@@ -1,0 +1,3 @@
+#!/bin/bash
+grub-install $BUTTERKNIFE_DISK
+update-grub

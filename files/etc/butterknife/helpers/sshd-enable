@@ -1,0 +1,6 @@
+#!/bin/sh
+[ -f /etc/init/ssh.conf ] && rm -fv /etc/init/ssh.conf.override && exit 0
+[ -f /bin/systemctl ] && systemctl enable ssh && exit 0
+update-rc.d ssh defaults
+update-rc.d ssh enable
+
