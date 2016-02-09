@@ -1,0 +1,8 @@
+#!/bin/sh
+if [ -z $BUTTERKNIFE_PARTITION ]; then
+    echo "exit \"Exit\"" # butterknife-maintenance over SSH or from command-line
+elif [ -z $BUTTERKNIFE_TRANSFER_METHOD ]; then
+    echo "exit \"Exit and reboot\"" # Instance maintenance
+else
+    echo "exit \"Finish installation and reboot\"" # Provisioning utility
+fi

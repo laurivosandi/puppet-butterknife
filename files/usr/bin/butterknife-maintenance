@@ -11,9 +11,8 @@ do
     for filename in $(ls /etc/butterknife/menu.d | grep -v "\."); do
         [ -x /etc/butterknife/menu.d/$filename ] && /etc/butterknife/menu.d/$filename
     done > /tmp/actions
-    set +e
-    dialog --menu "What next?" 0 0 0 --file /tmp/actions 2>/tmp/action
-    [ $? -eq 1 ] && exit 0
-    set -e
+    dialog --no-cancel --menu "What next?" 0 0 0 --file /tmp/actions 2>/tmp/action
+    clear
+    [ "$(cat /tmp/action)" == "exit" ] && exit 0
     sh /etc/butterknife/helpers/$(cat /tmp/action)
 done

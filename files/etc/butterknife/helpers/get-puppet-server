@@ -1,0 +1,2 @@
+#!/bin/sh
+cat /etc/puppet/puppet.conf  | grep server | cut -d '=' -f 2 | xargs

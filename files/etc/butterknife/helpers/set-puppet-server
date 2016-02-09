@@ -1,0 +1,18 @@
+#!/bin/sh
+OLD_MASTER=$(/etc/butterknife/helpers/get-puppet-server)
+dialog --inputbox "Enter Puppet server hostname, leave empty to disable Puppet agent and purge keys" 10 40 $(/etc/butterknife/helpers/get-puppet-server) 2>/tmp/new-puppetmaster
+NEW_MASTER=$(cat /tmp/new-puppetmaster)
+
+# Hostname is left as-is, don't do anything
+[ "$NEW_MASTER" = "$OLD_MASTER" ] && exit 0
+
+if [ -z $NEW_MASTER ]; then
+    puppet agent --disable "Disabled by user via Butterknife maintenance menu"
+    sed /etc/puppet/puppet.conf -i -e "s/server=.*/server=puppet/"
+else
+    puppet agent --enable "Enabled by user via Butterknife maintenance menu"
+    sed /etc/puppet/puppet.conf -i -e "s/server=.*/server=$NEW_MASTER/"
+fi
+
+# Puppet was disabled or hostname was changed, hence purge keys
+find /var/lib/puppet/ssl -type f -delete

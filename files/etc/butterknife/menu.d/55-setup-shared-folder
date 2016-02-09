@@ -1,0 +1,5 @@
+#!/bin/sh
+[ -e /etc/krb5.keytab ] || exit 0
+[ -e /etc/samba/smb.conf ] || exit 0
+[ -d /srv/media ] && exit 0
+echo "add-share \"Add shared folder\""

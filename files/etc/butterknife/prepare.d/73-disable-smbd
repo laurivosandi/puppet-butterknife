@@ -1,0 +1,5 @@
+#!/bin/bash
+[ -e /etc/init/smbd.conf ] && echo manual > /etc/init/smbd.override && exit 0
+update-rc.d smbd disable
+update-rc.d smbd remove
+

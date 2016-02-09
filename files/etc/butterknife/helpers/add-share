@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Read-write permissions to administrator and read-only to domain users
+mkdir -p /srv/media
+chown 1000500:1000513 /srv/media
+chmod 775 /srv/media
+
+cat <<EOF >> /etc/samba/smb.conf
+
+[media]
+path=/srv/media
+writable=yes
+EOF
+
+# Enable NetBIOS
+rm -f /etc/init/nmbd.override
+update-rc.d nmbd defaults
+update-rc.d nmbd enable
+
+# Enable SMB server
+rm -f /etc/init/smbd.override
+update-rc.d smbd defaults
+update-rc.d smbd enable

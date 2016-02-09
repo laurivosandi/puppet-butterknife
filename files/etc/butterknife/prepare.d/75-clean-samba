@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Clean up sockets and databases
+find /var/lib/samba/ ! -type d -delete -print
+find /var/cache/samba/ ! -type d -delete -print
+
+[ ! -d /etc/samba ] && exit 0
+rm -fv /etc/samba/smb.conf
+echo "Enabling sudo for domain admins group..."
+echo "%domain\\ admins ALL=(ALL) ALL" > /etc/sudoers.d/domain-admins
+
+[ -e /usr/share/pam-configs/mkhomedir ] && exit 0
+echo "Enabling automatic creation of home directories..."
+cat <<EOF >/usr/share/pam-configs/mkhomedir
+Name: Create home directory automatically
+Default: yes
+Priority: 900
+Session-Type: Additional
+Session:
+        required pam_mkhomedir.so umask=0077
+EOF
+
+
+

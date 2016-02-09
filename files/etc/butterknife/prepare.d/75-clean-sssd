@@ -1,3 +1,0 @@
-#!/bin/bash
-service sssd stop
-find /var/lib/sss/ ! -type d -delete -print

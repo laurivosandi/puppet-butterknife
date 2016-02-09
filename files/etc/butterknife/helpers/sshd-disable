@@ -1,5 +1,5 @@
 #!/bin/sh
-[ -d /etc/init ] && touch /etc/init/ssh.conf.override && exit 0
+[ -d /etc/init ] && echo manual > /etc/init/ssh.conf.override && exit 0
 [ -f /bin/systemctl ] && systemctl disable ssh && exit 0
 update-rc.d ssh disable
 update-rc.d ssh remove

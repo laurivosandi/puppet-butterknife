@@ -1,0 +1,8 @@
+#!/bin/bash
+[ ! -x /usr/sbin/sssd ] || exit 0
+service sssd stop
+find /var/lib/sss/ ! -type d -delete -print
+rm -fv /etc/sssd/sssd.conf
+[ -e /etc/init/sssd.conf ] && echo manual > /etc/init/sssd.override && exit 0
+update-rc.d sssd disable
+update-rc.d sssd remove

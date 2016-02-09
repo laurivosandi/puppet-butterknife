@@ -1,0 +1,8 @@
+#!/bin/sh
+[ ! -x /usr/bin/puppet ] && exit 0
+
+if [ -e /var/lib/puppet/state/agent_disabled.lock ]; then
+    echo "set-puppet-server \"Enable Puppet server"
+else
+    echo "set-puppet-server \"Change Puppet server $(/etc/butterknife/helpers/get-puppet-server)\""
+fi

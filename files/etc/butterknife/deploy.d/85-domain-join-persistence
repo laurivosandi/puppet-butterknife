@@ -44,9 +44,9 @@ fi
 
 if [ -h /var/lib/samba/private/secrets.tdb ]; then
     echo "Symlink /var/lib/samba/private/secrets.tdb already exists, skipping creation..."
-else
+elif [ -d /var/lib/samba ]; then
     echo "Symlinking /var/lib/samba/private/secrets.tdb to /var/lib/butterknife/persistent/secrets.tdb"
-    rm -f /var/lib/samba/private/secrets.tdb
+    rm -fv /var/lib/samba/private/secrets.tdb
     ln -s /var/lib/butterknife/persistent/secrets.tdb /var/lib/samba/private/secrets.tdb
 fi
 
@@ -83,7 +83,7 @@ fi
 
 if [ -h /etc/sssd/sssd.conf ]; then
     echo "Symlink /etc/sssd/sssd.conf already exists, skipping creation..."
-else
+elif [ -d /etc/sssd ]; then
     echo "Symlinking /etc/sssd/sssd.conf to /var/lib/butterknife/persistent/sssd.conf"
     rm -f /etc/sssd/sssd.conf
     ln -s /var/lib/butterknife/persistent/sssd.conf /etc/sssd/sssd.conf
@@ -103,8 +103,32 @@ else
 fi
 
 
-###########################
-### Enable SSSD service ###
-###########################
+#######################
+### Enable services ###
+#######################
 
-rm -f /etc/init/sssd.override
+rm -f /etc/init/sssd.override /etc/init/winbind.override
+
+
+################################
+### Update PAM configuration ###
+################################
+
+DEBIAN_FRONTEND=noninteractive pam-auth-update -f
+
+
+#####################################
+### Update nsswitch configuration ###
+#####################################
+
+if [ -x /usr/sbin/sssd ]; then
+    METHOD=sss
+elif [ -x /usr/sbin/winbindd ]; then
+    METHOD=winbind
+else
+    exit 0
+fi
+
+sed -i -e "s/^passwd:.*/passwd: compat $METHOD/" /etc/nsswitch.conf
+sed -i -e "s/^group:.*/group: compat $METHOD/" /etc/nsswitch.conf
+sed -i -e "s/^shadow:.*/shadow: compat/" /etc/nsswitch.conf

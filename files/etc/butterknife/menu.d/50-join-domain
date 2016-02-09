@@ -2,4 +2,5 @@
 [ -f /usr/bin/net ] || exit 0
 [ -f /usr/bin/dig ] || exit 0
 [ -f /usr/bin/dialog ] || exit 0
+[ -f /usr/share/pam-configs/sss ] || [ -f /usr/share/pam-configs/winbind ] || exit 0
 echo "join-domain \"Join domain\""

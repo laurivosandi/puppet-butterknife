@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Force GRUB to use UUID-s
+[ ! -e /etc/default/grub ] && exit 0
+sed -i -r /etc/default/grub -e "s/^#?GRUB_DISABLE_LINUX_UUID=.*/GRUB_DISABLE_LINUX_UUID=false/"
