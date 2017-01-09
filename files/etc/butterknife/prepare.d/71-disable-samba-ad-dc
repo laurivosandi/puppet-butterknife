@@ -1,5 +1,0 @@
-#!/bin/bash
-[ -e /etc/init/samba-ad-dc.conf ] && echo manual > /etc/init/samba-ad-dc.override && exit 0
-update-rc.d samba-ad-dc disable
-update-rc.d samba-ad-dc remove
-

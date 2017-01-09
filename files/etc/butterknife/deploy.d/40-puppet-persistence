@@ -22,8 +22,4 @@ ln -s /var/lib/butterknife/persistent/puppet /var/lib/puppet
 
 # Remove lock
 puppet agent --enable
-
-# Enable service
-sed -i -e 's/^START=.*/START=yes/' /etc/default/puppet
-rm -f /etc/init/puppet.override
-update-rc.d puppet enable
+systemctl unmask puppet

@@ -1,2 +1,0 @@
-#!/bin/sh
-rm -fv /etc/krb5.keytab /etc/krb5.conf

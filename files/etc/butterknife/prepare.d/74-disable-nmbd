@@ -1,5 +1,0 @@
-#!/bin/bash
-[ -e /etc/init/nmbd.conf ] && echo manual > /etc/init/nmbd.override && exit 0
-update-rc.d nmbd disable
-update-rc.d nmbd remove
-

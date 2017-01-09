@@ -1,11 +1,22 @@
 #!/bin/bash
 
+[ ! -d /etc/samba ] && exit 0
+
+# Disable services
+systemctl mask samba-ad-dc
+systemctl mask smbd
+systemctl mask winbind
+systemctl mask nmbd
+
 # Clean up sockets and databases
 find /var/lib/samba/ ! -type d -delete -print
 find /var/cache/samba/ ! -type d -delete -print
-
-[ ! -d /etc/samba ] && exit 0
+rm -fv /etc/krb5.keytab /etc/krb5.conf
 rm -fv /etc/samba/smb.conf
+
+# Map Administrator to root
+echo "!root = Administrator administrator" > /etc/samba/user.map
+
 echo "Enabling sudo for domain admins group..."
 echo "%domain\\ admins ALL=(ALL) ALL" > /etc/sudoers.d/domain-admins
 

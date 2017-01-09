@@ -63,7 +63,6 @@ else
     ln -s /var/lib/butterknife/persistent/smb.conf /etc/samba/smb.conf
 fi
 
-
 ##################################################
 ### Create /etc/krb5.conf symlink if necessary ###
 ##################################################
@@ -90,32 +89,19 @@ elif [ -d /etc/sssd ]; then
 fi
 
 
-########################################################
-### Create /etc/ldap/domain.pem symlink if necessary ###
-########################################################
-
-if [ -h /etc/ldap/domain.pem ]; then
-    echo "Symlink /etc/ldap/domain.pem already exists, skipping creation..."
-else
-    echo "Symlinking /etc/ldap/domain.pem to /var/lib/butterknife/persistent/domain.pem"
-    rm -f /etc/ldap/domain.pem
-    ln -s /var/lib/butterknife/persistent/domain.pem /etc/ldap/domain.pem
-fi
-
-
-#######################
-### Enable services ###
-#######################
-
-rm -f /etc/init/sssd.override /etc/init/winbind.override
-
-
 ################################
 ### Update PAM configuration ###
 ################################
 
 DEBIAN_FRONTEND=noninteractive pam-auth-update -f
 
+
+##############################################
+### Make sure lightdm shows username input ###
+##############################################
+if [ -d /etc/lightdm/lightdm.conf.d ]; then
+   echo -en "[SeatDefaults]\ngreeter-show-manual-login=true\n" > /etc/lightdm/lightdm.conf.d/domain.conf
+fi
 
 #####################################
 ### Update nsswitch configuration ###
@@ -132,3 +118,16 @@ fi
 sed -i -e "s/^passwd:.*/passwd: compat $METHOD/" /etc/nsswitch.conf
 sed -i -e "s/^group:.*/group: compat $METHOD/" /etc/nsswitch.conf
 sed -i -e "s/^shadow:.*/shadow: compat/" /etc/nsswitch.conf
+
+
+#######################
+### Enable services ###
+#######################
+case $METHOD in
+    sss)
+        systemctl unmask sssd
+    ;;
+    winbind)
+        systemctl unmask winbind
+    ;;
+esac

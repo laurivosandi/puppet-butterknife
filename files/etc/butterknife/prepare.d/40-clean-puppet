@@ -6,4 +6,4 @@ find /var/lib/puppet/ssl/ -name "*.pem" ! -name ca.pem ! -name crl.pem -delete -
 find /var/lib/puppet/state -type f -delete -print
 find /var/lib/puppet/reports -type f -delete -print
 rm -Rfv /var/lib/puppet/clientbucket/*
-
+systemctl mask puppet

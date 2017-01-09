@@ -1,20 +1,14 @@
 #!/bin/bash
 
-# This is the holy grail script that you've been looking for joining your Ubuntu /Debian box into
-# Microsoft Active Directory compliant domain
-# You'll always need: sudo apt-get install dnsutils samba-common dialog krb5-user ldap-utils openssl
-# If you want to join domain with winbind: sudo apt-get install libpam-winbind libnss-winbind
-# If you want to join domain with SSSD: sudo apt-get install libpam-sss libnss-sss sssd
-# If you want to set up fileserver: sudo apt-get install samba samba-vfs-modules
-# To enable sudo for domain admins add following to /etc/sudoers.d/domain-admins: %domain\ admins ALL=(ALL) ALL
-# Also make sure you have set up /usr/share/pam-configs/mkhomedir with following content:
-
-# Name: Create home directory automatically
-# Default: yes
-# Priority: 900
-# Session-Type: Additional
-# Session:
-#         required pam_mkhomedir.so umask=0077
+# This is the holy grail script that you've been looking for joining your
+# Ubuntu 16.04 box into Microsoft Active Directory compliant domain
+# You'll always need: sudo apt install dnsutils samba-common dialog krb5-user ldap-utils openssl
+# If you want to join domain with winbind: sudo apt install libpam-winbind libnss-winbind
+# If you want to join domain with SSSD: sudo apt install libpam-sss libnss-sss sssd
+# If you want to set up fileserver (works properly only with winbind): sudo apt install samba samba-vfs-modules
+# Reconfigure lightdm to show manual login
+# Reconfigure /etc/security/group.conf to inherit video, audio, etc groups
+# To enable sudo for domain admins: echo "%domain\\ admins ALL=(ALL) ALL" > /etc/sudoers.d/domain-admins
 
 
 if [ $UID -ne 0 ]; then
@@ -148,18 +142,31 @@ idmap config *:range = 1000000-16777216
 idmap config *:backend = rid
 
 # libpam-winbind config
-winbind nss info = rfc2307
+winbind offline logon = yes
 winbind trusted domains only = no
 winbind use default domain = yes
 winbind refresh tickets = yes
+username map = /etc/samba/user.map
+
+# hardening
 client ldap sasl wrapping = seal
+ntlm auth = no
+lanman auth = no
 
 # Map Windows ACL-s to chown/chmod/setfacl/attr
 vfs objects = acl_xattr
 
 EOF
 
+if [ ! -f /etc/samba/user.map ]; then
+    echo "!root = Administrator administrator" > /etc/samba/user.map
+fi
 
+cat > /etc/security/pam_winbind.conf << EOF
+[global]
+cached_login = yes
+krb5_auth = yes
+EOF
 
 #####################################################
 ### This populates keytab and creates secrets.tdb ###
@@ -232,7 +239,6 @@ sed -i -e "s/^shadow:.*/shadow: compat/" /etc/nsswitch.conf
 ####################
 ### Purge caches ###
 ####################
-
 [ -d /var/lib/samba ] && find /var/lib/samba/ -type f -delete -print
 [ -d /var/cache/samba ] && find /var/cache/samba/ -type f -delete -print
 [ -d /var/lib/sss ] && find /var/lib/sss/ -type f -delete -print
@@ -243,18 +249,10 @@ sed -i -e "s/^shadow:.*/shadow: compat/" /etc/nsswitch.conf
 #######################
 
 case $METHOD in
-   sss)
-        if [ -d /etc/init ]; then
-            rm -f /etc/init/sssd.override
-        else
-            update-rc.d sssd defaults
-        fi
+    sss)
+        systemctl unmask sssd
     ;;
     winbind)
-        if [ -d /etc/init ]; then
-            rm -f /etc/init/winbind.override
-        else
-            update-rc.d winbind defaults
-        fi
+        systemctl unmask winbind
     ;;
 esac

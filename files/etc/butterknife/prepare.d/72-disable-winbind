@@ -1,6 +1,0 @@
-#!/bin/bash
-[ ! -x /usr/sbin/winbindd ] || exit 0
-[ -e /etc/init/winbind.conf ] && echo manual > /etc/init/winbind.override && exit 0
-update-rc.d winbind disable
-update-rc.d winbind remove
-
