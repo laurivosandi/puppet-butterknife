@@ -217,6 +217,8 @@ sudo_provider = ad
 cache_credentials = true
 dyndns_update = false
 krb5_use_enterprise_principal = false
+krb5_store_password_if_offline = true
+krb5_renew_interval = 7200
 ldap_disable_referrals = true
 EOF
 
