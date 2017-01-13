@@ -2,7 +2,7 @@
 
 # This is the holy grail script that you've been looking for joining your
 # Ubuntu 16.04 box into Microsoft Active Directory compliant domain
-# You'll always need: sudo apt install dnsutils samba-common dialog krb5-user ldap-utils openssl
+# You'll always need: sudo apt install dnsutils samba-common-bin dialog krb5-user ldap-utils openssl
 # If you want to join domain with winbind: sudo apt install libpam-winbind libnss-winbind
 # If you want to join domain with SSSD: sudo apt install libpam-sss libnss-sss sssd
 # If you want to set up fileserver (works properly only with winbind): sudo apt install samba samba-vfs-modules
@@ -180,9 +180,11 @@ clear
 ### Setup LDAP client config ###
 ################################
 
+LDAP_BASE=$(echo ".$DOMAIN" | sed "s/\./,dc=/g" | cut -c 2-)
+
 cat > /etc/ldap/ldap.conf << EOF
 BASE $LDAP_BASE
-URI ldap://$LDAP_HOSTNAME
+URI ldap://$DOMAIN
 EOF
 
 if [ $METHOD == "skip" ]; then
